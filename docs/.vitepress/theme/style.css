@@ -119,21 +119,106 @@
 }
 
 /**
- * Component: Custom Block
+ * 全局文本可读性优化 - 浅色 & 深色主题
  * -------------------------------------------------------------------------- */
-
 :root {
-  --vp-custom-block-tip-border: transparent;
-  --vp-custom-block-tip-text: var(--vp-c-text-1);
-  --vp-custom-block-tip-bg: var(--vp-c-brand-soft);
-  --vp-custom-block-tip-code-bg: var(--vp-c-brand-soft);
+  /* 浅色主题文本颜色优化 */
+  --vp-c-text-1: rgba(60, 60, 67, 0.92);
+  --vp-c-text-2: rgba(60, 60, 67, 0.78);
+  --vp-c-text-3: rgba(60, 60, 67, 0.56);
+
+  /* 加粗文本颜色 - 浅色 */
+  --vp-c-strong-light: #1a73e8; /* Google蓝 */
+  --vp-code-color: var(--vp-c-text-1); /* 代码颜色匹配主文本 */
+  
+  /* 引用块颜色 */
+  --vp-blockquote-bg: rgba(66, 165, 245, 0.05);  /* 浅蓝背景 */
+  --vp-blockquote-border: #42a5f5;
+  --vp-blockquote-text: rgba(60, 60, 67, 0.92); /* 主文本颜色 */
+}
+
+.dark {
+  /* 深色主题文本颜色保持 Drake 风格 */
+  --vp-c-text-1: #b3bec4;
+  --vp-c-text-2: rgba(179, 190, 196, 0.75);
+  --vp-c-text-3: rgba(179, 190, 196, 0.5);
+
+  /* 加粗文本颜色 - 深色 */
+  --vp-c-strong-dark: #6BD0FF;
+  --vp-code-color: #b3bec4;
+
+  /* 引用块颜色 */
+  --vp-blockquote-bg: rgba(255, 185, 82, 0.05); /* Drake橙色背景 */
+  --vp-blockquote-border: #ff9800;
+  --vp-blockquote-text: #b3bec4;
 }
 
 /**
- * Component: Algolia
+ * 正文和加粗文本样式
  * -------------------------------------------------------------------------- */
+.vp-doc {
+  color: var(--vp-c-text-1);
+}
 
+.vp-doc strong {
+  color: var(--vp-c-strong-light);
+  font-weight: 600;
+}
+
+.dark .vp-doc strong {
+  color: var(--vp-c-strong-dark);
+  font-weight: bold;
+}
+
+/* 引用框内加粗文字也统一颜色 */
+.vp-doc blockquote strong {
+  color: var(--vp-c-strong-dark) !important;
+}
+
+/**
+ * 引用块样式
+ * -------------------------------------------------------------------------- */
+.vp-doc blockquote {
+  padding: 10px 16px;
+  margin: 1rem 0;
+  background-color: var(--vp-blockquote-bg);
+  border-left: 4px solid var(--vp-blockquote-border);
+  border-radius: 2px;
+  color: var(--vp-blockquote-text);
+}
+
+/**
+ * 列表样式优化
+ * -------------------------------------------------------------------------- */
+.vp-doc ul,
+.vp-doc ol {
+  color: var(--vp-c-text-1);
+}
+
+.vp-doc li {
+  margin: 0.4em 0;
+}
+
+/**
+ * 代码块字体颜色
+ * -------------------------------------------------------------------------- */
+.vp-doc pre,
+.vp-doc code {
+  color: var(--vp-code-color);
+}
+
+/**
+ * 自定义块优化（如 tip 块）
+ * -------------------------------------------------------------------------- */
+.vp-doc .custom-block.tip {
+  background-color: rgba(255, 152, 0, 0.1); /* 半透明橙 */
+  border-color: transparent;
+  color: var(--vp-c-text-1);
+}
+
+/**
+ * Algolia 搜索主色适配主题
+ * -------------------------------------------------------------------------- */
 .DocSearch {
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
-

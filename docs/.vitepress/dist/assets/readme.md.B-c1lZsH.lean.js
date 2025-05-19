@@ -1,0 +1,1 @@
+import{_ as a,c as t,o,ae as l}from"./chunks/framework.MzfCtVj-.js";const p=JSON.parse('{"title":"学习顺序","description":"","frontmatter":{},"headers":[],"relativePath":"readme.md","filePath":"readme.md"}'),r={name:"readme.md"};function i(c,e,n,_,s,d){return o(),t("div",null,e[0]||(e[0]=[l("",3)]))}const u=a(r,[["render",i]]);export{p as __pageData,u as default};

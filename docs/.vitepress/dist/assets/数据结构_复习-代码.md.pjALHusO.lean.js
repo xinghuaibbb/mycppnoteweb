@@ -1,0 +1,1 @@
+import{_ as i,c as a,o as n,ae as t}from"./chunks/framework.MzfCtVj-.js";const g=JSON.parse('{"title":"链表","description":"","frontmatter":{},"headers":[],"relativePath":"数据结构/复习-代码.md","filePath":"数据结构/复习-代码.md"}'),l={name:"数据结构/复习-代码.md"};function h(p,s,k,E,e,d){return n(),a("div",null,s[0]||(s[0]=[t("",9)]))}const y=i(l,[["render",h]]);export{g as __pageData,y as default};

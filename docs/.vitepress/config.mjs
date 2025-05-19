@@ -86,10 +86,10 @@ export default defineConfig({
           { text: '数据结构-2', link: '/数据结构/2-数据结构(五大算法之后)' },
           {
             text: '老师PDF',
-            link: '/数据结构/Cpp%E7%89%88%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95%E8%AF%BE%E7%A8%8B.pdf',
+            link: '/public/Cpp版数据结构和算法课程.pdf',
             target: '_blank'  // 可选：在新标签页打开
           },
-          { text: '红黑树扩展', link: '/数据结构/红黑树删除节点.pdf' },
+          { text: '红黑树扩展', link: '/public/红黑树删除节点.pdf' },
           { text: '数据结构小补充', link: '/数据结构/数据结构小补充' }
         ]
       },
@@ -179,8 +179,11 @@ export default defineConfig({
         items: [
           { text: '数据结构-1', link: '/数据结构/1-数据结构' },
           { text: '数据结构-2', link: '/数据结构/2-数据结构(五大算法之后)' },
-          { text: '老师pdf', link: '/数据结构/C++版数据结构和算法课程.pdf' },
-          { text: '红黑树扩展', link: '/数据结构/红黑树删除节点 - Hide on bush.pdf' },
+          {
+            text: '老师PDF',
+            link: '/public/Cpp版数据结构和算法课程.pdf'
+          },
+          { text: '红黑树扩展', link: '/public/红黑树删除节点.pdf' },
           { text: '数据结构小补充', link: '/数据结构/数据结构小补充' }
         ]
       },

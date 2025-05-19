@@ -105,22 +105,71 @@ export default defineConfig({
           { text: '常用命令小总结', link: '/施磊数据库核心/2-常用命令' }
         ]
       },
-      // { text: '阿秀八股大全', 
-      //   items: [
-      //     { text: 'c++语法', 
-      //       items: [
-      //         { text: 'c++语法-01-20', link: '/阿秀笔记大全/02-interview/01-01-01-basic' },
-      //         { text: 'c++语法-21-40', link: '/阿秀笔记大全/02-interview/01-01-02-basic' },
-      //         { text: 'c++语法-41-60', link: '/阿秀笔记大全/02-interview/01-01-03-basic' },
-      //         { text: 'c++语法-61-80', link: '/阿秀笔记大全/02-interview/01-01-04-basic' },
-      //         { text: 'c++语法-81-100', link: '/阿秀笔记大全/02-interview/01-01-05-basic' },
-      //         { text: 'c++语法-101-120', link: '/阿秀笔记大全/02-interview/01-01-06-basic' },
-      //         { text: 'c++语法-121-140', link: '/阿秀笔记大全/02-interview/01-01-07-basic' }
-      //       ]
-      //     },
+      { text: '阿秀八股大全', 
+        items: [
+          { text: 'c++语法', 
+            items: [
+              { text: 'c++语法-01-20', link: '/阿秀笔记大全/02-interview/01-01-01-basic' },
+              { text: 'c++语法-21-40', link: '/阿秀笔记大全/02-interview/01-01-02-basic' },
+              { text: 'c++语法-41-60', link: '/阿秀笔记大全/02-interview/01-01-03-basic' },
+              { text: 'c++语法-61-80', link: '/阿秀笔记大全/02-interview/01-01-04-basic' },
+              { text: 'c++语法-81-100', link: '/阿秀笔记大全/02-interview/01-01-05-basic' },
+              { text: 'c++语法-101-120', link: '/阿秀笔记大全/02-interview/01-01-06-basic' },
+              { text: 'c++语法-121-140', link: '/阿秀笔记大全/02-interview/01-01-07-basic' },
+              { text: 'c++内存管理', link: '/阿秀笔记大全/02-interview/01-02-01-memory' },
+              { text: 'c++STL-1', link: '/阿秀笔记大全/02-interview/01-04-01-STL' },
+              { text: 'c++其他-2', link: '/阿秀笔记大全/02-interview/01-05-01-other' },
+              { text: 'c++其他-3', link: '/阿秀笔记大全/02-interview/01-05-02-other' }
+            ]
+          },
+          { text: '操作系统', 
+            items: [
+              { text: '操作系统-01-20', link: '/阿秀笔记大全/02-interview/02-01-os' },
+              { text: '操作系统-21-40', link: '/阿秀笔记大全/02-interview/02-02-os' },
+              { text: '操作系统-41-60', link: '/阿秀笔记大全/02-interview/02-03-os' },
+              { text: '操作系统-61-80', link: '/阿秀笔记大全/02-interview/02-04-os' }
+            ]
+           },
+           { text: '计算机网络',
+            items: [
+              { text: '计算机网络-01-20', link: '/阿秀笔记大全/02-interview/03-01-net' },
+              { text: '计算机网络-21-40', link: '/阿秀笔记大全/02-interview/03-02-net' },
+              { text: '计算机网络-41-60', link: '/阿秀笔记大全/02-interview/03-03-net' },
+              { text: '计算机网络-61-80', link: '/阿秀笔记大全/02-interview/03-04-net' },
+              { text: '计算机网络-81-100', link: '/阿秀笔记大全/02-interview/03-05-net' },
+              { text: '计算机网络-101-120', link: '/阿秀笔记大全/02-interview/03-06-net' }
+            ]
+           },
+            { text: ' MySQL',
+              items: [
+                { text: 'MySQL-01-20', link: '/阿秀笔记大全/02-interview/04-01-01-MySQL' },
+                { text: 'MySQL-21-40', link: '/阿秀笔记大全/02-interview/04-01-02-MySQL' },
+                { text: 'MySQL-41-60', link: '/阿秀笔记大全/02-interview/04-01-03-MySQL' }
+              ]
+            },
+            { text: 'Redis',
+              items: [
+                { text: 'Redis-01-20', link: '/阿秀笔记大全/02-interview/04-02-01-Redis' },
+                { text: 'Redis-21-40', link: '/阿秀笔记大全/02-interview/04-02-02-Redis' }
+              ]
+            },
+            { text: '分布式',
+              items: [
+                { text: '分布式-1', link: '/阿秀笔记大全/02-interview/05-01-01-distribution' },
+                { text: '分布式-2', link: '/阿秀笔记大全/02-interview/05-01-02-distribution' },
+                { text: '分布式-3', link: '/阿秀笔记大全/02-interview/05-01-03-distribution' }
+              ]
+            },
+            { text: '海量数据处理',
+              items: [
+                { text: '海量数据处理-1', link: '/阿秀笔记大全/02-interview/07-01-massive_data' },
+                { text: '海量数据处理-2', link: '/阿秀笔记大全/02-interview/07-02-massive_data' }
+              ]
+            }
+        ]
+      },
 
-      //   ]
-      // },
+
     ],
 
     sidebar: [
@@ -201,7 +250,69 @@ export default defineConfig({
           { text: '常用命令小总结', link: '/施磊数据库核心/2-常用命令' }
         ]
       },
-
+      { text: '阿秀八股大全', 
+        items: [
+          { text: 'c++语法', 
+            items: [
+              { text: 'c++语法-01-20', link: '/阿秀笔记大全/02-interview/01-01-01-basic' },
+              { text: 'c++语法-21-40', link: '/阿秀笔记大全/02-interview/01-01-02-basic' },
+              { text: 'c++语法-41-60', link: '/阿秀笔记大全/02-interview/01-01-03-basic' },
+              { text: 'c++语法-61-80', link: '/阿秀笔记大全/02-interview/01-01-04-basic' },
+              { text: 'c++语法-81-100', link: '/阿秀笔记大全/02-interview/01-01-05-basic' },
+              { text: 'c++语法-101-120', link: '/阿秀笔记大全/02-interview/01-01-06-basic' },
+              { text: 'c++语法-121-140', link: '/阿秀笔记大全/02-interview/01-01-07-basic' },
+              { text: 'c++内存管理', link: '/阿秀笔记大全/02-interview/01-02-01-memory' },
+              { text: 'c++STL-1', link: '/阿秀笔记大全/02-interview/01-04-01-STL' },
+              { text: 'c++其他-2', link: '/阿秀笔记大全/02-interview/01-05-01-other' },
+              { text: 'c++其他-3', link: '/阿秀笔记大全/02-interview/01-05-02-other' }
+            ]
+          },
+          { text: '操作系统', 
+            items: [
+              { text: '操作系统-01-20', link: '/阿秀笔记大全/02-interview/02-01-os' },
+              { text: '操作系统-21-40', link: '/阿秀笔记大全/02-interview/02-02-os' },
+              { text: '操作系统-41-60', link: '/阿秀笔记大全/02-interview/02-03-os' },
+              { text: '操作系统-61-80', link: '/阿秀笔记大全/02-interview/02-04-os' }
+            ]
+           },
+           { text: '计算机网络',
+            items: [
+              { text: '计算机网络-01-20', link: '/阿秀笔记大全/02-interview/03-01-net' },
+              { text: '计算机网络-21-40', link: '/阿秀笔记大全/02-interview/03-02-net' },
+              { text: '计算机网络-41-60', link: '/阿秀笔记大全/02-interview/03-03-net' },
+              { text: '计算机网络-61-80', link: '/阿秀笔记大全/02-interview/03-04-net' },
+              { text: '计算机网络-81-100', link: '/阿秀笔记大全/02-interview/03-05-net' },
+              { text: '计算机网络-101-120', link: '/阿秀笔记大全/02-interview/03-06-net' }
+            ]
+           },
+            { text: ' MySQL',
+              items: [
+                { text: 'MySQL-01-20', link: '/阿秀笔记大全/02-interview/04-01-01-MySQL' },
+                { text: 'MySQL-21-40', link: '/阿秀笔记大全/02-interview/04-01-02-MySQL' },
+                { text: 'MySQL-41-60', link: '/阿秀笔记大全/02-interview/04-01-03-MySQL' }
+              ]
+            },
+            { text: 'Redis',
+              items: [
+                { text: 'Redis-01-20', link: '/阿秀笔记大全/02-interview/04-02-01-Redis' },
+                { text: 'Redis-21-40', link: '/阿秀笔记大全/02-interview/04-02-02-Redis' }
+              ]
+            },
+            { text: '分布式',
+              items: [
+                { text: '分布式-1', link: '/阿秀笔记大全/02-interview/05-01-01-distribution' },
+                { text: '分布式-2', link: '/阿秀笔记大全/02-interview/05-01-02-distribution' },
+                { text: '分布式-3', link: '/阿秀笔记大全/02-interview/05-01-03-distribution' }
+              ]
+            },
+            { text: '海量数据处理',
+              items: [
+                { text: '海量数据处理-1', link: '/阿秀笔记大全/02-interview/07-01-massive_data' },
+                { text: '海量数据处理-2', link: '/阿秀笔记大全/02-interview/07-02-massive_data' }
+              ]
+            }
+        ]
+      },
 
     ],
 

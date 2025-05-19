@@ -7,17 +7,24 @@ export default defineConfig({
   base: '/mycppnoteweb/',
   // 重点修改的 markdown 配置
   markdown: {
+    anchor: {
+      // 配置选项见下文
+      slugify: (str) => str.toLowerCase().replace(/\s+/g, '-'),
+      permalink: true,
+      permalinkBefore: true,
+      permalinkSymbol: '#'
+    },
     theme: {
       light: 'github-light',
       dark: 'github-dark'
     },
 
-    // 添加以下配置解决模板语法解析问题
-    anchor: {
-      slugify(str) {
-        return encodeURIComponent(str)
-      }
-    },
+    // // 添加以下配置解决模板语法解析问题
+    // anchor: {
+    //   slugify(str) {
+    //     return encodeURIComponent(str)
+    //   }
+    // },
     config: (md) => {
       // 防止 Markdown 解析器将尖括号视为 HTML 标签
       md.set({
@@ -323,5 +330,8 @@ export default defineConfig({
     footer: {
       copyright: "Copyright © 2025-present xinghuai",
     }
-  }
+  },
+
+
+
 })

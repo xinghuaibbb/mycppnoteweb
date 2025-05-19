@@ -130,6 +130,7 @@
   /* 加粗文本颜色 - 浅色 */
   --vp-c-strong-light: #1a73e8; /* Google蓝 */
   --vp-code-color: var(--vp-c-text-1); /* 代码颜色匹配主文本 */
+  --vp-inline-code-color: #e6a700; /* 行内代码黄色 */
   
   /* 引用块颜色 */
   --vp-blockquote-bg: rgba(66, 165, 245, 0.05);  /* 浅蓝背景 */
@@ -146,6 +147,7 @@
   /* 加粗文本颜色 - 深色 */
   --vp-c-strong-dark: #6BD0FF;
   --vp-code-color: #b3bec4;
+  --vp-inline-code-color: #ffb742; /* 深色主题下的行内代码黄色 */
 
   /* 引用块颜色 */
   --vp-blockquote-bg: rgba(255, 185, 82, 0.05); /* Drake橙色背景 */
@@ -176,6 +178,21 @@
 }
 
 /**
+ * 行内代码块样式 - 黄色
+ * -------------------------------------------------------------------------- */
+.vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  color: var(--vp-inline-code-color);
+  background-color: rgba(230, 167, 0, 0.1);
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.dark .vp-doc :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  background-color: rgba(255, 183, 66, 0.1);
+}
+
+/**
  * 引用块样式
  * -------------------------------------------------------------------------- */
 .vp-doc blockquote {
@@ -203,7 +220,7 @@
  * 代码块字体颜色
  * -------------------------------------------------------------------------- */
 .vp-doc pre,
-.vp-doc code {
+.vp-doc pre code {
   color: var(--vp-code-color);
 }
 
@@ -221,4 +238,8 @@
  * -------------------------------------------------------------------------- */
 .DocSearch {
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
+}
+.VPDocAsideOutline a {
+  color: var(--vp-c-text-1); /* 恢复默认颜色 */
+  pointer-events: auto;      /* 启用点击 */
 }

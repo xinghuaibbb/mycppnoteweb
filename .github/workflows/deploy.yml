@@ -28,7 +28,7 @@ jobs:
         uses: pnpm/action-setup@v3
         with:
           version: 9
-          run_install: false
+          run_install: true  # 改为 true 自动安装依赖
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,14 +36,20 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
+      # 添加 Pages 自动配置
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          enablement: true  # 关键修复：允许自动配置 Pages
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build with VitePress
         run: pnpm run docs:build
+
+      - name: Verify build output
+        run: ls -R docs/.vitepress/dist  # 验证构建输出
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -175,6 +175,11 @@ export default defineConfig({
             }
         ]
       },
+      { text: '小林coding',
+        items: [
+          { text: '图解网络', link: '/小林coding/net/1-base' }
+        ]
+      }
 
 
     ],
@@ -320,6 +325,11 @@ export default defineConfig({
             }
         ]
       },
+      { text: '小林coding',
+        items: [
+          { text: '图解网络', link: '/小林coding/net/1-base' }
+        ]
+      }
 
     ],
 

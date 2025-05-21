@@ -9,7 +9,13 @@ export default defineConfig({
   markdown: {
     anchor: {
       // 配置选项见下文
-      slugify: (str) => str.toLowerCase().replace(/\s+/g, '-'),
+      // slugify: (str) => encodeURIComponent(str.toLowerCase().replace(/\s+/g, '-')),
+      // slugify: (str) => str.toLowerCase().replace(/\s+/g, '-'),\
+      slugify: (str) =>
+  str
+    .toLowerCase()
+    .replace(/[\s]/g, '-')                     // 空格转 -
+    .replace(/[^\w\u4e00-\u9fa5\-]/g, ''),      // 去除非法字符但保留中文和 -
       permalink: true,
       permalinkBefore: true,
       permalinkSymbol: '#'
@@ -108,7 +114,7 @@ export default defineConfig({
       },
       {
         text: 'mysql', items: [
-          { text: 'mysql-1', link: '/施磊数据库核心/1-数据库笔记' },
+          { text: 'mysql', link: '/施磊数据库核心/1-数据库笔记' },
           { text: '常用命令小总结', link: '/施磊数据库核心/2-常用命令' }
         ]
       },

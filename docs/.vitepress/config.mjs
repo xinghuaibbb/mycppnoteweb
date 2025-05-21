@@ -5,6 +5,7 @@ export default defineConfig({
   title: "mycpp-note",
   description: "xinghuai的学习笔记",
   base: '/mycppnoteweb/',
+  
   // 重点修改的 markdown 配置
   markdown: {
     anchor: {
@@ -40,6 +41,8 @@ export default defineConfig({
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    outline: [1 , 2],
+
     nav: [
       { text: 'home', link: '/' },
       {
@@ -346,8 +349,9 @@ export default defineConfig({
     footer: {
       copyright: "Copyright © 2025-present xinghuai",
     }
-  },
 
+  },
+  
 
 
 })

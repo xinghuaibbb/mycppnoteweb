@@ -186,7 +186,13 @@ export default defineConfig({
       },
       { text: '小林coding',
         items: [
-          { text: '图解网络', link: '/小林coding/net/1-base' }
+          { text: '图解网络', 
+            items: [
+              { text: '基础篇', link: '/小林coding/net/1-base' },
+              { text: 'TCP篇', link: '/小林coding/net/tcp_interview'
+               }
+            ]
+           }
         ]
       }
 
@@ -336,7 +342,38 @@ export default defineConfig({
       },
       { text: '小林coding',
         items: [
-          { text: '图解网络', link: '/小林coding/net/1-base' }
+          { text: '图解网络', 
+            items: [
+              { text: '基础篇', link: '/小林coding/net/1-base' },
+              { text: 'TCP篇', 
+                items: [
+                  { text: 'tcp.1', link: '/小林coding/net/tcp_interview' },
+                  { text: 'tcp.2', link: '/小林coding/net/tcp_feature' },
+                  { text: 'tcp.3', link: '/小林coding/net/tcp_tcpdump' },
+                  { text: 'tcp.4', link: '/小林coding/net/tcp_queue' },
+                  { text: 'tcp.5', link: '/小林coding/net/tcp_optimize' },
+                  { text: 'tcp.6', link: '/小林coding/net/tcp_stream' },
+                  { text: 'tcp.7', link: '/小林coding/net/isn_deff' },
+                  { text: 'tcp.8', link: '/小林coding/net/syn_drop' },
+                  { text: 'tcp.9', link: '/小林coding/net/challenge_ack' },
+                  { text: 'tcp.10', link: '/小林coding/net/out_of_order_fin' },
+                  { text: 'tcp.11', link: '/小林coding/net/time_wait_recv_syn' },
+                  { text: 'tcp.12', link: '/小林coding/net/tcp_down_and_crash' },
+                  { text: 'tcp.13', link: '/小林coding/net/tcp_unplug_the_network_cable' },
+                  { text: 'tcp.14', link: '/小林coding/net/tcp_tw_reuse_close' },
+                  { text: 'tcp.15', link: '/小林coding/net/tcp_tls' },
+                  { text: 'tcp.16', link: '/小林coding/net/tcp_http_keepalive' },
+                  { text: 'tcp.17', link: '/小林coding/net/tcp_problem' },
+                  { text: 'tcp.18', link: '/小林coding/net/quic' },
+                  { text: 'tcp.19', link: '/小林coding/net/port' },
+                  { text: 'tcp.20', link: '/小林coding/net/tcp_no_listen' },
+                  { text: 'tcp.21', link: '/小林coding/net/tcp_no_accpet' },
+                  { text: 'tcp.22', link: '/小林coding/net/tcp_drop' },
+                  { text: 'tcp.23', link: '/小林coding/net/tcp_three_fin' }
+                ]
+               }
+            ]
+           }
         ]
       }
 

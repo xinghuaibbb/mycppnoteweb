@@ -49,7 +49,7 @@ export default defineConfig({
         text: 'linux', items: [
           {
             text: '系统编程',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '系统编程-1', link: '/1-linux阶段汇总/1-黑马linux系统编程课堂笔记-结合课件看' },
               { text: '系统编程-2', link: '/1-linux阶段汇总/2-黑马linux系统编程' },
@@ -58,7 +58,7 @@ export default defineConfig({
           },
           {
             text: '网络编程',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '网络编程-1', link: '/1-linux阶段汇总/4-黑马linux网络编程' },
               { text: '网络编程-2', link: '/1-linux阶段汇总/5-黑马网络编程' },
@@ -75,7 +75,7 @@ export default defineConfig({
         text: 'cpp', items: [
           {
             text: 'cpp中级',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'cpp中级-1', link: '/中高级c++阶段学习笔记-md/1-中级c++笔记-1' },
               { text: 'cpp中级-2', link: '/中高级c++阶段学习笔记-md/1-中级c++笔记-2' },
@@ -84,7 +84,7 @@ export default defineConfig({
           },
           {
             text: 'cpp高级',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'cpp高级-1', link: '/中高级c++阶段学习笔记-md/2-高级c++笔记-1' },
               { text: 'cpp高级-2', link: '/中高级c++阶段学习笔记-md/2-高级c++笔记-2' },
@@ -205,7 +205,7 @@ export default defineConfig({
         items: [
           {
             text: '系统编程',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '系统编程-1', link: '/1-linux阶段汇总/1-黑马linux系统编程课堂笔记-结合课件看' },
               { text: '系统编程-2', link: '/1-linux阶段汇总/2-黑马linux系统编程' },
@@ -214,7 +214,7 @@ export default defineConfig({
           },
           {
             text: '网络编程',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: '网络编程-1', link: '/1-linux阶段汇总/4-黑马linux网络编程' },
               { text: '网络编程-2', link: '/1-linux阶段汇总/5-黑马网络编程' },
@@ -230,7 +230,7 @@ export default defineConfig({
         items: [
           {
             text: 'cpp中级',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'cpp中级-1', link: '/中高级c++阶段学习笔记-md/1-中级c++笔记-1' },
               { text: 'cpp中级-2', link: '/中高级c++阶段学习笔记-md/1-中级c++笔记-2' },
@@ -239,7 +239,7 @@ export default defineConfig({
           },
           {
             text: 'cpp高级',
-            collapsed: false,
+            collapsed: true,
             items: [
               { text: 'cpp高级-1', link: '/中高级c++阶段学习笔记-md/2-高级c++笔记-1' },
               { text: 'cpp高级-2', link: '/中高级c++阶段学习笔记-md/2-高级c++笔记-2' },
@@ -252,6 +252,7 @@ export default defineConfig({
       },
       {
         text: '数据结构',
+        collapsed: true,
         items: [
           { text: '数据结构-1', link: '/数据结构/1-数据结构' },
           { text: '数据结构-2', link: '/数据结构/2-数据结构(五大算法之后)' },
@@ -265,6 +266,7 @@ export default defineConfig({
       },
       {
         text: '项目',
+        collapsed: true,
         items: [
           { text: '集群聊天服务器', link: '/markdown-examples' },
           { text: 'mprpc框架', link: '/api-examples' }
@@ -272,12 +274,14 @@ export default defineConfig({
       },
       {
         text: 'mysql',
+        collapsed: true,
         items: [
           { text: 'mysql', link: '/施磊数据库核心/1-数据库笔记' },
           { text: '常用命令小总结', link: '/施磊数据库核心/2-常用命令' }
         ]
       },
       { text: '阿秀八股大全', 
+        collapsed: true,
         items: [
           { text: 'c++语法', 
             items: [
@@ -341,11 +345,14 @@ export default defineConfig({
         ]
       },
       { text: '小林coding',
+        collapsed: true,
         items: [
           { text: '图解网络', 
+            collapsed: true,
             items: [
-              { text: '基础篇', link: '/小林coding/net/1-base' },
+              { text: '基础篇', collapsed: true, link: '/小林coding/net/1-base' },
               { text: 'TCP篇', 
+                collapsed: true,
                 items: [
                   { text: 'tcp.1', link: '/小林coding/net/tcp_interview' },
                   { text: 'tcp.2', link: '/小林coding/net/tcp_feature' },

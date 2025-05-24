@@ -40,8 +40,13 @@
 
 ![半连接队列与全连接队列](https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/TCP-%E5%8D%8A%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%85%A8%E8%BF%9E%E6%8E%A5/3.jpg)
 
-
 不管是半连接队列还是全连接队列，都有最大长度限制，超过限制时，内核会直接丢弃，或返回 RST 包。
+
+
+
+> ## hzh
+>
+> 看上面
 
 ---
 
@@ -183,6 +188,75 @@ tcp_abort_on_overflow 共有两个值分别是 0 和 1，其分别表示：
 说明 TCP 全连接队列最大值从 128 增大到 5000 后，服务端抗住了 3 万连接并发请求，也没有发生全连接队列溢出的现象了。
 
 **如果持续不断地有连接因为 TCP 全连接队列溢出被丢弃，就应该调大 backlog 以及 somaxconn 参数。**
+
+
+
+> ## hzh
+>
+> ### 实战操作总结
+>
+> #### 1. **查看 TCP 全连接队列大小**
+> - 使用 `ss` 命令查看：
+>   ```bash
+>   ss -lnt
+>   ```
+>   - `Recv-Q`：当前全连接队列的大小（已完成三次握手但未被 `accept()` 的连接数）。
+>   - `Send-Q`：全连接队列的最大长度。
+>
+> #### 2. **模拟 TCP 全连接队列溢出**
+> - 使用 `wrk` 工具对服务端进行高并发压测：
+>   ```bash
+>   wrk -t12 -c30000 -d30s http://192.168.3.200:8088
+>   ```
+> - 服务端使用 `ss` 查看全连接队列状态：
+>   ```bash
+>   ss -lnt
+>   ```
+> - 使用 `netstat -s` 查看全连接队列溢出次数：
+>   ```bash
+>   netstat -s | grep "listen queue"
+>   ```
+>
+> #### 3. **调整 TCP 全连接队列策略**
+> - 修改 `tcp_abort_on_overflow` 参数：
+>   ```bash
+>   echo 1 > /proc/sys/net/ipv4/tcp_abort_on_overflow
+>   ```
+>   - `0`：丢弃连接（默认）。
+>   - `1`：发送 RST 报文通知客户端连接失败。
+>
+> #### 4. **增大 TCP 全连接队列**
+> - 修改 `somaxconn` 参数：
+>   ```bash
+>   echo 5000 > /proc/sys/net/core/somaxconn
+>   ```
+> - 修改应用（如 Nginx）的 `backlog` 参数：
+>   - 在 Nginx 配置文件中设置：
+>     ```nginx
+>     listen 8088 backlog=5000;
+>     ```
+>   - 重启 Nginx 服务：
+>     ```bash
+>     systemctl restart nginx
+>     ```
+>
+> #### 5. **验证调整效果**
+> - 再次使用 `wrk` 工具进行压测，观察全连接队列是否溢出：
+>   ```bash
+>   wrk -t12 -c30000 -d30s http://192.168.3.200:8088
+>   ```
+> - 使用 `ss` 和 `netstat -s` 检查全连接队列状态和溢出次数：
+>   ```bash
+>   ss -lnt
+>   netstat -s | grep "listen queue"
+>   ```
+>
+> #### 6. **注意事项**
+> - **`somaxconn` 和 `backlog` 的最小值决定全连接队列的最大长度**：
+>   ```text
+>   max_queue_size = min(somaxconn, backlog)
+>   ```
+> - 增大全连接队列后，需确保服务端的资源（如 CPU、内存）足够支撑高并发请求。
 
 ---
 
@@ -412,6 +486,95 @@ syncookies 参数主要有以下三个值：
 [2] https://www.cnblogs.com/zengkefu/p/5606696.html
 
 [3] https://blog.cloudflare.com/syn-packet-handling-in-the-wild/
+
+
+
+> ## hzh
+>
+> ### 实战操作总结 - TCP 半连接队列溢出
+>
+> #### 1. **查看 TCP 半连接队列长度**
+> - 半连接队列长度无法直接查看，但可以通过统计 `SYN_RECV` 状态的连接数来间接获取：
+>   ```bash
+>   netstat -n | grep SYN_RECV | wc -l
+>   ```
+>
+> #### 2. **模拟 TCP 半连接队列溢出**
+> - 使用 `hping3` 工具模拟 SYN 攻击：
+>   ```bash
+>   hping3 -S -p 8088 --flood 192.168.3.200
+>   ```
+>   - `-S`：发送 SYN 包。
+>   - `--flood`：快速发送包。
+>   - `-p`：指定目标端口。
+>
+> - 服务端查看 `SYN_RECV` 状态的连接数：
+>   ```bash
+>   netstat -n | grep SYN_RECV | wc -l
+>   ```
+>
+> - 查看半连接队列溢出次数：
+>   ```bash
+>   netstat -s | grep "SYNs to LISTEN sockets dropped"
+>   ```
+>
+> #### 3. **调整 TCP 半连接队列大小**
+> - 半连接队列大小由以下参数共同决定：
+>   - `tcp_max_syn_backlog`：半连接队列的理论最大值。
+>   - `somaxconn` 和 `backlog`：全连接队列的参数，间接影响半连接队列。
+>
+> - 修改 `tcp_max_syn_backlog`：
+>   ```bash
+>   echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>   ```
+>
+> - 修改 `somaxconn`：
+>   ```bash
+>   echo 1024 > /proc/sys/net/core/somaxconn
+>   ```
+>
+> - 修改 Web 服务（如 Nginx）的 `backlog`：
+>   - 在 Nginx 配置文件中：
+>     ```nginx
+>     listen 8088 backlog=1024;
+>     ```
+>   - 重启 Nginx 服务：
+>     ```bash
+>     systemctl restart nginx
+>     ```
+>
+> #### 4. **开启 `tcp_syncookies` 功能**
+> - 开启 `tcp_syncookies` 以缓解 SYN 攻击：
+>   ```bash
+>   echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+>   ```
+>   - `0`：关闭。
+>   - `1`：仅在半连接队列满时启用。
+>   - `2`：始终启用。
+>
+> #### 5. **减少 SYN+ACK 重传次数**
+> - 修改 `tcp_synack_retries` 参数：
+>   ```bash
+>   echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+>   ```
+>   - 默认值为 5，表示重传 5 次。
+>
+> #### 6. **防御 SYN 攻击的综合措施**
+> - **增大半连接队列**：调整 `tcp_max_syn_backlog`、`somaxconn` 和 `backlog`。
+> - **开启 `tcp_syncookies`**：在半连接队列满时启用。
+> - **减少 SYN+ACK 重传次数**：加快释放 `SYN_RECV` 状态的连接。
+> - **使用防火墙**：通过 `iptables` 或其他工具限制恶意流量。
+>
+> #### 7. **验证调整效果**
+> - 使用 `hping3` 再次模拟 SYN 攻击，观察调整后的效果：
+>   ```bash
+>   hping3 -S -p 8088 --flood 192.168.3.200
+>   ```
+> - 检查 `SYN_RECV` 状态的连接数和溢出次数：
+>   ```bash
+>   netstat -n | grep SYN_RECV | wc -l
+>   netstat -s | grep "SYNs to LISTEN sockets dropped"
+>   ```
 
 ---
 

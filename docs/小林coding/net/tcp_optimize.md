@@ -262,6 +262,139 @@ tcp_fastopn 各个值的意义：
 
 TCP Fast Open 功能可以绕过三次握手，使得 HTTP 请求减少了 1 个 RTT 的时间，Linux 下可以通过 `tcp_fastopen` 开启该功能，同时必须保证服务端和客户端同时支持。
 
+> ## hzh-c
+>
+> ### TCP 三次握手性能优化总结
+>
+> #### 1. **客户端优化**
+> - **控制 SYN 重传次数**：
+>   - 参数：`tcp_syn_retries`
+>   - 默认值：5 次（总耗时约 63 秒）。
+>   - 调整建议：根据网络环境优化，内网可适当降低重试次数。
+>   - 修改方法：
+>     ```bash
+>     echo 3 > /proc/sys/net/ipv4/tcp_syn_retries
+>     ```
+>
+> #### 2. **服务端优化**
+> - **优化 SYN 半连接队列**：
+>   - 参数：`tcp_max_syn_backlog`、`somaxconn`、`backlog`
+>   - 调整建议：增大队列大小，避免半连接队列溢出。
+>   - 修改方法：
+>     ```bash
+>     echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>     echo 1024 > /proc/sys/net/core/somaxconn
+>     ```
+>     修改 Web 服务（如 Nginx）的 `backlog`：
+>     ```nginx
+>     listen 8088 backlog=1024;
+>     ```
+>     重启服务后生效。
+>
+> - **开启 SYN Cookies**：
+>   - 参数：`tcp_syncookies`
+>   - 默认值：0（关闭）。
+>   - 调整建议：设置为 1，仅在半连接队列满时启用。
+>   - 修改方法：
+>     ```bash
+>     echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+>     ```
+>
+> - **控制 SYN+ACK 重传次数**：
+>   - 参数：`tcp_synack_retries`
+>   - 默认值：5 次（总耗时约 63 秒）。
+>   - 调整建议：根据网络环境优化，减少重传次数以加快释放资源。
+>   - 修改方法：
+>     ```bash
+>     echo 3 > /proc/sys/net/ipv4/tcp_synack_retries
+>     ```
+>
+> - **优化 accept 队列**：
+>   - 参数：`somaxconn` 和 `backlog`
+>   - 调整建议：增大队列大小，避免全连接队列溢出。
+>   - 修改方法：
+>     ```bash
+>     echo 1024 > /proc/sys/net/core/somaxconn
+>     ```
+>     修改 Web 服务（如 Nginx）的 `backlog`：
+>     ```nginx
+>     listen 8088 backlog=1024;
+>     ```
+>
+> - **处理 accept 队列溢出**：
+>   - 参数：`tcp_abort_on_overflow`
+>   - 默认值：0（丢弃 ACK）。
+>   - 调整建议：设置为 1，发送 RST 通知客户端连接失败。
+>   - 修改方法：
+>     ```bash
+>     echo 1 > /proc/sys/net/ipv4/tcp_abort_on_overflow
+>     ```
+>
+> #### 3. **绕过三次握手**
+> - **启用 TCP Fast Open**：
+>   - 参数：`tcp_fastopen`
+>   - 默认值：0（关闭）。
+>   - 调整建议：设置为 3，支持客户端和服务端同时使用。
+>   - 修改方法：
+>     ```bash
+>     echo 3 > /proc/sys/net/ipv4/tcp_fastopen
+>     ```
+>
+> #### 4. **监控与验证**
+> - **查看半连接队列溢出**：
+>   ```bash
+>   netstat -s | grep "SYNs to LISTEN sockets dropped"
+>   ```
+>
+> - **查看全连接队列溢出**：
+>   ```bash
+>   netstat -s | grep "listen queue"
+>   ```
+>
+> - **查看 accept 队列状态**：
+>   ```bash
+>   ss -lnt
+>   ```
+>
+> #### 5. **总结**
+> - **客户端优化**：调整 `tcp_syn_retries`，减少重传次数。
+> - **服务端优化**：
+>   - 增大半连接和全连接队列大小。
+>   - 开启 SYN Cookies 缓解 SYN 攻击。
+>   - 调整 `tcp_synack_retries` 和 `tcp_abort_on_overflow`。
+> - **绕过三次握手**：启用 TCP Fast Open，减少 1 个 RTT 的延迟。
+
+> ## hzh-d
+>
+> ### TCP 三次握手性能优化总结
+>
+> #### 1. **客户端优化**
+> - **控制 SYN 重传次数**：通过 `tcp_syn_retries` 参数调整，减少重传次数以加快失败检测。
+>
+> #### 2. **服务端优化**
+> - **增大半连接队列**：调整 `tcp_max_syn_backlog`、`somaxconn` 和 `backlog` 参数，避免半连接队列溢出。
+> - **开启 SYN Cookies**：设置 `tcp_syncookies=1`，在半连接队列满时启用，缓解 SYN 攻击。
+> - **控制 SYN+ACK 重传次数**：通过 `tcp_synack_retries` 参数减少重传次数，加快释放资源。
+> - **优化全连接队列**：调整 `somaxconn` 和 `backlog` 参数，避免 accept 队列溢出。
+> - **处理 accept 队列溢出**：设置 `tcp_abort_on_overflow=1`，发送 RST 通知客户端连接失败。
+>
+> #### 3. **绕过三次握手**
+> - **启用 TCP Fast Open**：设置 `tcp_fastopen=3`，减少 1 个 RTT 的延迟。
+>
+> #### 4. **监控与验证**
+> - 使用 `netstat -s` 和 `ss -lnt` 命令监控半连接和全连接队列的状态及溢出情况。
+>
+> #### 5. **核心参数调整**
+> | 参数                    | 功能                        | 默认值 | 调整建议     |
+> | ----------------------- | --------------------------- | ------ | ------------ |
+> | `tcp_syn_retries`       | 控制客户端 SYN 重传次数     | 5      | 适当降低     |
+> | `tcp_max_syn_backlog`   | 半连接队列大小              | 128    | 增大         |
+> | `tcp_syncookies`        | 开启 SYN Cookies            | 0      | 设置为 1     |
+> | `tcp_synack_retries`    | 控制服务端 SYN+ACK 重传次数 | 5      | 适当降低     |
+> | `somaxconn`             | 全连接队列最大值            | 128    | 增大         |
+> | `tcp_abort_on_overflow` | 处理 accept 队列溢出行为    | 0      | 根据需求调整 |
+> | `tcp_fastopen`          | 启用 TCP Fast Open          | 0      | 设置为 3     |
+
 ---
 
 ## TCP 四次挥手的性能提升
@@ -530,6 +663,135 @@ Per-host PAWS 机制利用 TCP option 里的 timestamp 字段的增长来判断�
 
 当被动方发送 FIN 报文后，连接就进入 LAST_ACK 状态，在未等到 ACK 时，会在 `tcp_orphan_retries` 参数的控制下重发 FIN 报文。
 
+
+
+> ## hzh-c
+>
+> ### TCP 四次挥手性能优化总结
+>
+> #### 1. **主动方的优化**
+>
+> - **FIN_WAIT1 状态优化**：
+>   - **参数**：`tcp_orphan_retries`
+>   - **默认值**：0（实际为 8 次重传）。
+>   - **调整建议**：适当降低重传次数，加快释放资源。
+>   - **修改方法**：
+>     ```bash
+>     echo 3 > /proc/sys/net/ipv4/tcp_orphan_retries
+>     ```
+>
+> - **FIN_WAIT2 状态优化**：
+>   - **参数**：`tcp_fin_timeout`
+>   - **默认值**：60 秒。
+>   - **调整建议**：适当降低超时时间，减少孤儿连接占用资源。
+>   - **修改方法**：
+>     ```bash
+>     echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
+>     ```
+>
+> - **孤儿连接优化**：
+>   - **参数**：`tcp_max_orphans`
+>   - **默认值**：系统资源限制。
+>   - **调整建议**：根据系统资源适当增大，避免过多孤儿连接导致资源耗尽。
+>   - **修改方法**：
+>     ```bash
+>     echo 65536 > /proc/sys/net/ipv4/tcp_max_orphans
+>     ```
+>
+> - **TIME_WAIT 状态优化**：
+>   - **方式一**：限制 TIME_WAIT 数量。
+>     - **参数**：`tcp_max_tw_buckets`
+>     - **默认值**：180000。
+>     - **调整建议**：根据系统资源适当增大。
+>     - **修改方法**：
+>       ```bash
+>       echo 200000 > /proc/sys/net/ipv4/tcp_max_tw_buckets
+>       ```
+>   - **方式二**：复用 TIME_WAIT 状态的端口（仅适用于客户端）。
+>     - **参数**：`tcp_tw_reuse` 和 `tcp_timestamps`
+>     - **默认值**：`tcp_tw_reuse=0`（关闭），`tcp_timestamps=1`（开启）。
+>     - **调整建议**：设置 `tcp_tw_reuse=1`，开启端口复用。
+>     - **修改方法**：
+>       ```bash
+>       echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
+>       echo 1 > /proc/sys/net/ipv4/tcp_timestamps
+>       ```
+>
+> - **快速关闭连接**：
+>   - 使用 `SO_LINGER` 选项设置：
+>     - **行为**：调用 `close` 后立即发送 RST 报文，跳过四次挥手。
+>     - **适用场景**：仅推荐在客户端使用，服务端慎用。
+>
+> #### 2. **被动方的优化**
+>
+> - **CLOSE_WAIT 状态优化**：
+>   - **问题**：大量 CLOSE_WAIT 状态通常是应用程序未调用 `close` 函数导致。
+>   - **解决方法**：检查应用程序逻辑，确保在 `read` 返回 0 后调用 `close`。
+>
+> - **LAST_ACK 状态优化**：
+>   - **参数**：`tcp_orphan_retries`
+>   - **默认值**：0（实际为 8 次重传）。
+>   - **调整建议**：适当降低重传次数，加快释放资源。
+>   - **修改方法**：
+>     ```bash
+>     echo 3 > /proc/sys/net/ipv4/tcp_orphan_retries
+>     ```
+>
+> #### 3. **同时关闭连接的优化**
+> - **状态**：双方同时发送 FIN 报文，进入 CLOSING 状态。
+> - **优化策略**：与 FIN_WAIT1 和 FIN_WAIT2 状态优化一致，调整 `tcp_orphan_retries` 和 `tcp_fin_timeout` 参数。
+>
+> #### 4. **小结**
+>
+> | 状态           | 参数                 | 默认值    | 调整建议                  |
+> | -------------- | -------------------- | --------- | ------------------------- |
+> | FIN_WAIT1      | `tcp_orphan_retries` | 0（8 次） | 降低重传次数              |
+> | FIN_WAIT2      | `tcp_fin_timeout`    | 60 秒     | 降低超时时间              |
+> | 孤儿连接       | `tcp_max_orphans`    | 系统限制  | 增大孤儿连接上限          |
+> | TIME_WAIT      | `tcp_max_tw_buckets` | 180000    | 增大 TIME_WAIT 数量上限   |
+> | TIME_WAIT 复用 | `tcp_tw_reuse`       | 0         | 开启（仅客户端）          |
+> | CLOSE_WAIT     | 应用程序逻辑         | -         | 确保调用 `close` 释放连接 |
+> | LAST_ACK       | `tcp_orphan_retries` | 0（8 次） | 降低重传次数              |
+>
+> 通过以上优化，可以有效减少 TCP 四次挥手过程中的资源占用和性能问题，同时确保连接的可靠性和稳定性。
+
+
+
+> ## hzh-d
+>
+> ### TCP 四次挥手性能优化总结
+>
+> #### 1. **主动方优化**
+> - **FIN_WAIT1 状态**：
+>   - 调整 `tcp_orphan_retries` 参数，降低 FIN 报文的重传次数，加快资源释放。
+> - **FIN_WAIT2 状态**：
+>   - 调整 `tcp_fin_timeout` 参数，限制孤儿连接的持续时间（默认 60 秒）。
+>   - 调整 `tcp_max_orphans` 参数，限制孤儿连接的最大数量，避免资源耗尽。
+> - **TIME_WAIT 状态**：
+>   - 调整 `tcp_max_tw_buckets` 参数，限制 TIME_WAIT 状态的连接数量。
+>   - 开启 `tcp_tw_reuse`（仅客户端），复用 TIME_WAIT 状态的端口。
+>   - 使用 `SO_LINGER` 选项（仅客户端），快速关闭连接，跳过四次挥手。
+>
+> #### 2. **被动方优化**
+> - **CLOSE_WAIT 状态**：
+>   - 检查应用程序逻辑，确保在 `read` 返回 0 后调用 `close` 释放连接。
+> - **LAST_ACK 状态**：
+>   - 调整 `tcp_orphan_retries` 参数，降低 FIN 报文的重传次数。
+>
+> #### 3. **同时关闭连接**
+> - 双方同时发送 FIN 报文进入 CLOSING 状态，优化策略与 FIN_WAIT1 和 FIN_WAIT2 状态一致。
+>
+> #### 4. **核心参数调整**
+> | 参数                 | 功能                          | 默认值    | 调整建议                |
+> | -------------------- | ----------------------------- | --------- | ----------------------- |
+> | `tcp_orphan_retries` | 控制 FIN 报文的重传次数       | 0（8 次） | 降低重传次数            |
+> | `tcp_fin_timeout`    | 控制 FIN_WAIT2 状态的持续时间 | 60 秒     | 降低超时时间            |
+> | `tcp_max_orphans`    | 限制孤儿连接的最大数量        | 系统限制  | 增大孤儿连接上限        |
+> | `tcp_max_tw_buckets` | 限制 TIME_WAIT 状态的数量     | 180000    | 增大 TIME_WAIT 数量上限 |
+> | `tcp_tw_reuse`       | 复用 TIME_WAIT 状态的端口     | 0         | 开启（仅客户端）        |
+>
+> 通过以上优化，可以有效减少四次挥手过程中的资源占用，提升系统性能，同时确保连接的可靠性和稳定性。
+
 ---
 
 ## TCP 传输数据的性能提升
@@ -722,6 +984,144 @@ Linux 会对缓冲区动态调节，我们应该把缓冲区的上限设置为�
 
 [6] https://vincent.bernat.ch/en/blog/2014-tcp-time-wait-state-linux
 
+
+
+
+
+> ## hzh-c
+>
+> ### TCP 数据传输性能优化总结
+>
+> #### 1. **滑动窗口与传输速度**
+> - **滑动窗口**：控制发送方根据接收方的处理能力调整发送数据量。
+> - **窗口大小**：
+>   - 默认最大值为 64 KB。
+>   - 可通过 `tcp_window_scaling` 参数开启窗口扩展（默认开启），最大值可达 1 GB。
+>   - 修改方法：
+>     ```bash
+>     echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
+>     ```
+>
+> #### 2. **带宽时延积（BDP）**
+> - **定义**：带宽与网络时延（RTT）的乘积，表示网络中飞行报文的最大字节数。
+> - **优化原则**：
+>   - 发送缓冲区大小应接近带宽时延积。
+>   - 过大：网络过载，容易丢包。
+>   - 过小：无法充分利用网络带宽。
+>
+> #### 3. **缓冲区大小调整**
+> - **发送缓冲区（tcp_wmem）**：
+>   - 控制发送缓冲区的动态范围。
+>   - 参数格式：`最小值 初始值 最大值`（单位：字节）。
+>   - 默认值：`4096 16384 4194304`（4 KB, 16 KB, 4 MB）。
+>   - 修改方法：
+>     ```bash
+>     echo "4096 16384 4194304" > /proc/sys/net/ipv4/tcp_wmem
+>     ```
+>
+> - **接收缓冲区（tcp_rmem）**：
+>   - 控制接收缓冲区的动态范围。
+>   - 参数格式：`最小值 初始值 最大值`（单位：字节）。
+>   - 默认值：`4096 87380 6291456`（4 KB, 86 KB, 6 MB）。
+>   - 修改方法：
+>     ```bash
+>     echo "4096 87380 6291456" > /proc/sys/net/ipv4/tcp_rmem
+>     ```
+>
+> - **动态调节接收缓冲区**：
+>   - 参数：`tcp_moderate_rcvbuf`
+>   - 默认值：1（开启）。
+>   - 修改方法：
+>     ```bash
+>     echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+>     ```
+>
+> #### 4. **TCP 内存范围（tcp_mem）**
+> - **定义**：控制 TCP 使用的内存范围（单位：页面大小，1 页 = 4 KB）。
+> - **参数格式**：`最小值 调节范围上限 最大值`。
+> - **默认值**：根据系统内存自动计算。
+> - **修改方法**：
+>   ```bash
+>   echo "786432 1048576 1771200" > /proc/sys/net/ipv4/tcp_mem
+>   ```
+>
+> #### 5. **优化策略**
+> - **高并发场景**：
+>   - 增大 `tcp_mem` 的最大值，允许更多内存用于 TCP 连接。
+>   - 保持缓冲区最小值默认（4 KB），增大最大值接近带宽时延积。
+> - **内存紧张场景**：
+>   - 降低 `tcp_rmem` 和 `tcp_wmem` 的默认值，减少单个连接的内存占用。
+> - **避免手动设置缓冲区**：
+>   - 不建议在程序中设置 `SO_SNDBUF` 和 `SO_RCVBUF`，以免关闭动态调节功能。
+>
+> #### 6. **小结**
+> - **滑动窗口**：通过 `tcp_window_scaling` 扩展窗口大小，提升传输速度。
+> - **带宽时延积**：发送缓冲区大小应接近 BDP，避免过载或浪费带宽。
+> - **缓冲区动态调节**：通过 `tcp_wmem` 和 `tcp_rmem` 配置范围，结合 `tcp_mem` 控制内存使用。
+> - **动态调整优先**：避免程序中手动设置缓冲区大小，交由内核自动调节。
+>
+> 通过合理配置这些参数，可以在高并发和高带宽场景下提升 TCP 数据传输性能，同时避免资源浪费或过载问题。
+
+> ## hzh-d
+>
+> ### TCP 数据传输性能优化总结
+>
+> #### 1. **滑动窗口优化**
+> - **滑动窗口**：控制发送方根据接收方的处理能力调整发送数据量。
+> - **窗口扩展**：通过 `tcp_window_scaling` 参数开启（默认开启），最大窗口可达 1 GB。
+>   ```bash
+>   echo 1 > /proc/sys/net/ipv4/tcp_window_scaling
+>   ```
+>
+> #### 2. **带宽时延积（BDP）**
+> - **定义**：带宽 × 网络时延（RTT），表示网络中飞行报文的最大字节数。
+> - **优化原则**：
+>   - 发送缓冲区大小 ≈ 带宽时延积。
+>   - 过大：网络过载，容易丢包。
+>   - 过小：无法充分利用网络带宽。
+>
+> #### 3. **缓冲区调整**
+> - **发送缓冲区（tcp_wmem）**：
+>   - 格式：`最小值 初始值 最大值`（单位：字节）。
+>   - 默认值：`4096 16384 4194304`（4 KB, 16 KB, 4 MB）。
+>   ```bash
+>   echo "4096 16384 4194304" > /proc/sys/net/ipv4/tcp_wmem
+>   ```
+>
+> - **接收缓冲区（tcp_rmem）**：
+>   - 格式：`最小值 初始值 最大值`（单位：字节）。
+>   - 默认值：`4096 87380 6291456`（4 KB, 86 KB, 6 MB）。
+>   ```bash
+>   echo "4096 87380 6291456" > /proc/sys/net/ipv4/tcp_rmem
+>   ```
+>
+> - **动态调节接收缓冲区**：
+>   - 参数：`tcp_moderate_rcvbuf`（默认开启）。
+>   ```bash
+>   echo 1 > /proc/sys/net/ipv4/tcp_moderate_rcvbuf
+>   ```
+>
+> #### 4. **TCP 内存范围（tcp_mem）**
+> - **定义**：控制 TCP 使用的内存范围（单位：页面大小，1 页 = 4 KB）。
+> - **格式**：`最小值 调节范围上限 最大值`。
+>   ```bash
+>   echo "786432 1048576 1771200" > /proc/sys/net/ipv4/tcp_mem
+>   ```
+>
+> #### 5. **优化策略**
+> - **高并发场景**：
+>   - 增大 `tcp_mem` 最大值，允许更多内存用于 TCP 连接。
+>   - 增大缓冲区最大值接近带宽时延积。
+> - **内存紧张场景**：
+>   - 降低 `tcp_rmem` 和 `tcp_wmem` 默认值，减少单连接内存占用。
+> - **避免手动设置缓冲区**：
+>   - 不建议在程序中设置 `SO_SNDBUF` 和 `SO_RCVBUF`，以免关闭动态调节功能。
+>
+> #### 6. **总结**
+> - **滑动窗口**：通过 `tcp_window_scaling` 扩展窗口大小，提升传输速度。
+> - **带宽时延积**：发送缓冲区大小应接近 BDP，避免过载或浪费带宽。
+> - **动态调节**：通过 `tcp_wmem`、`tcp_rmem` 和 `tcp_mem` 配置范围，结合内核动态调整功能优化性能。
+
 ---
 
 ## 读者问答
@@ -740,5 +1140,4 @@ Linux 会对缓冲区动态调节，我们应该把缓冲区的上限设置为�
 **小林是专为大家图解的工具人，Goodbye，我们下次见！**
 
 ![](https://cdn.xiaolincoding.com/gh/xiaolincoder/ImageHost2/%E5%85%B6%E4%BB%96/%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BB%8B%E7%BB%8D.png)
-
 

@@ -189,14 +189,14 @@ export default defineConfig({
           { text: '图解网络', 
             items: [
               { text: '基础篇', link: '/小林coding/net/1-base' },
-              { text: 'TCP篇', link: '/小林coding/net/tcp_interview'
+              { text: 'TCP篇', link: '/小林coding/net/tcp_interview'},
+              { text: 'ip篇',link: '/小林coding/net/ip_base'
                }
+               
             ]
            }
         ]
       }
-
-
     ],
 
     sidebar: [
@@ -377,6 +377,14 @@ export default defineConfig({
                   { text: 'tcp.21', link: '/小林coding/net/tcp_no_accpet' },
                   { text: 'tcp.22', link: '/小林coding/net/tcp_drop' },
                   { text: 'tcp.23', link: '/小林coding/net/tcp_three_fin' }
+                ]
+               },
+               { text: 'ip篇',
+                collapsed: true,
+                items: [
+                  { text: 'ip.1', link: '/小林coding/net/ip_base' },
+                  { text: 'ip.2', link: '/小林coding/net/ping' },
+                  { text: 'ip.3', link: '/小林coding/net/ping_lo' }
                 ]
                }
             ]

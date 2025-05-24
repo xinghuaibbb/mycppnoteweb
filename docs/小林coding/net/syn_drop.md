@@ -82,6 +82,102 @@ Per-host PAWS 机制利用 TCP option 里的 timestamp 字段的增长来判断�
 
 tcp_tw_recycle 在 Linux 4.12 版本后，直接取消了这一参数。
 
+> ## hzh-c
+>
+> ### TCP 每次建立连接时，SYN 报文被丢弃的两种场景总结
+>
+> #### 1. **开启 `tcp_tw_recycle` 参数导致 SYN 报文被丢弃**
+> - **TIME_WAIT 状态的作用**：
+>   - 防止历史连接中的数据被后续连接接收。
+>   - 确保被动关闭方能正确关闭连接。
+> - **`tcp_tw_recycle` 参数**：
+>   - 允许快速回收处于 TIME_WAIT 状态的连接。
+>   - 依赖 TCP 时间戳（`tcp_timestamps=1`）。
+>   - **问题**：在 NAT 环境下，开启 `tcp_tw_recycle` 会导致 SYN 报文被丢弃。
+>     - **原因**：开启 `tcp_tw_recycle` 后，服务端会对「对端 IP」进行 PAWS 检查（per-host PAWS）。
+>     - NAT 网关下，多个客户端共享同一个 IP，导致时间戳冲突。
+>     - 如果新客户端的时间戳小于之前的时间戳，服务端会丢弃其 SYN 报文。
+> - **解决方案**：
+>   - 不要开启 `tcp_tw_recycle` 参数。
+>   - 使用 `tcp_tw_reuse` 参数（仅适用于客户端），复用 TIME_WAIT 状态的端口。
+>   - 在 Linux 4.12 版本后，`tcp_tw_recycle` 参数已被移除。
+>
+> #### 2. **TCP 队列满导致 SYN 报文被丢弃**
+> - **TCP 队列**：
+>   - **半连接队列**：存储处于 SYN_RECV 状态的连接。
+>   - **全连接队列**：存储已完成三次握手但未被应用程序 `accept()` 的连接。
+> - **问题**：
+>   - 半连接队列满：服务端无法存储新的 SYN 请求，丢弃 SYN 报文。
+>   - 全连接队列满：服务端无法存储已完成握手的连接，丢弃后续的 ACK 报文。
+> - **解决方案**：
+>   - 增大半连接队列：
+>     ```bash
+>     echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>     ```
+>   - 增大全连接队列：
+>     ```bash
+>     echo 1024 > /proc/sys/net/core/somaxconn
+>     ```
+>     修改 Web 服务（如 Nginx）的 `backlog` 参数：
+>     ```nginx
+>     listen 8080 backlog=1024;
+>     ```
+>   - 开启 SYN Cookies（`tcp_syncookies=1`）：
+>     - 当半连接队列满时，启用 SYN Cookies，避免丢弃连接。
+>
+> #### 3. **总结**
+> - **`tcp_tw_recycle` 的问题**：
+>   - 在 NAT 环境下不安全，可能导致 SYN 报文被丢弃。
+>   - 不建议开启，Linux 4.12 后已移除。
+> - **TCP 队列满的问题**：
+>   - 增大半连接和全连接队列的大小。
+>   - 开启 SYN Cookies 缓解半连接队列溢出。
+> - **推荐优化**：
+>   - 使用 `tcp_tw_reuse` 替代 `tcp_tw_recycle`。
+>   - 合理配置 `tcp_max_syn_backlog`、`somaxconn` 和 `backlog` 参数。
+
+> ## hzh-d
+>
+> ### SYN 报文被丢弃的两种场景总结
+>
+> #### 1. **开启 `tcp_tw_recycle` 导致 SYN 报文被丢弃**
+> - **问题**：
+>   - 在 NAT 环境下，`tcp_tw_recycle` 开启后，服务端对「对端 IP」进行 per-host PAWS 检查。
+>   - NAT 网关下多个客户端共享同一 IP，时间戳冲突导致服务端丢弃 SYN 报文。
+> - **解决方案**：
+>   - 不要开启 `tcp_tw_recycle` 参数（Linux 4.12 后已移除）。
+>   - 使用 `tcp_tw_reuse` 参数（仅适用于客户端），复用 TIME_WAIT 状态的端口。
+>
+> #### 2. **TCP 队列满导致 SYN 报文被丢弃**
+> - **问题**：
+>   - 半连接队列满：服务端无法存储新的 SYN 请求。
+>   - 全连接队列满：服务端无法存储已完成握手的连接。
+> - **解决方案**：
+>   - 增大半连接队列：
+>     ```bash
+>     echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>     ```
+>   - 增大全连接队列：
+>     ```bash
+>     echo 1024 > /proc/sys/net/core/somaxconn
+>     ```
+>     修改 Web 服务的 `backlog` 参数：
+>     ```nginx
+>     listen 8080 backlog=1024;
+>     ```
+>   - 开启 SYN Cookies：
+>     ```bash
+>     echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+>     ```
+>
+> #### 3. **总结**
+> - **`tcp_tw_recycle` 问题**：
+>   - 在 NAT 环境下不安全，可能导致 SYN 报文被丢弃。
+>   - 不建议开启，推荐使用 `tcp_tw_reuse`。
+> - **TCP 队列满问题**：
+>   - 增大半连接和全连接队列大小。
+>   - 开启 SYN Cookies 缓解半连接队列溢出。
+
 ## accpet 队列满了
 
 在 TCP 三次握手的时候，Linux 内核会维护两个队列，分别是：
@@ -172,6 +268,131 @@ syncookies 参数主要有以下三个值：
 - 检查系统或者代码为什么调用 accept()  不及时；
 
 关于 SYN 队列和 accpet 队列，我之前写过一篇很详细的文章：[TCP 半连接队列和全连接队列满了会发生什么？又该如何应对？](https://mp.weixin.qq.com/s/2qN0ulyBtO2I67NB_RnJbg)
+
+
+
+> ## hzh-c
+>
+> ### TCP 半连接队列和全连接队列满的总结
+>
+> #### 1. **半连接队列满了**
+> - **现象**：
+>   - 半连接队列满时，后续的 SYN 报文会被丢弃。
+>   - 如果开启了 `tcp_syncookies`，即使队列满了，也不会丢弃 SYN 报文。
+>
+> - **解决方法**：
+>   1. **增大半连接队列**：
+>      - 修改 `tcp_max_syn_backlog` 参数：
+>        ```bash
+>        echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>        ```
+>      - 同时增大 `somaxconn` 和 Web 服务的 `backlog` 参数。
+>   2. **开启 SYN Cookies**：
+>      - 修改 `tcp_syncookies` 参数：
+>        ```bash
+>        echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+>        ```
+>   3. **减少 SYN+ACK 重传次数**：
+>      - 修改 `tcp_synack_retries` 参数：
+>        ```bash
+>        echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+>        ```
+>
+> #### 2. **全连接队列满了**
+> - **现象**：
+>   - 全连接队列（accept 队列）满时，后续的 ACK 报文会被丢弃。
+>   - 导致服务端无法处理更多的连接请求。
+>
+> - **解决方法**：
+>   1. **增大全连接队列**：
+>      - 修改 `somaxconn` 参数：
+>        ```bash
+>        echo 1024 > /proc/sys/net/core/somaxconn
+>        ```
+>      - 修改 Web 服务的 `backlog` 参数（如 Nginx）：
+>        ```nginx
+>        listen 8080 backlog=1024;
+>        ```
+>   2. **检查 accept 调用**：
+>      - 确保应用程序及时调用 `accept()`，避免连接长时间滞留在队列中。
+>
+> #### 3. **监控队列状态**
+> - 使用 `ss -lnt` 命令查看队列状态：
+>   - `Recv-Q`：当前 accept 队列的大小。
+>   - `Send-Q`：accept 队列的最大长度。
+>   - 如果 `Recv-Q` 超过 `Send-Q`，说明 accept 队列已满。
+>
+> #### 4. **总结**
+> - **半连接队列满**：
+>   - 增大 `tcp_max_syn_backlog`。
+>   - 开启 `tcp_syncookies`。
+>   - 减少 SYN+ACK 重传次数。
+> - **全连接队列满**：
+>   - 增大 `somaxconn` 和 `backlog`。
+>   - 检查应用程序是否及时调用 `accept()`。
+> - **监控**：通过 `ss` 命令实时查看队列状态，及时发现问题。
+
+
+
+> ## hzh-d
+>
+> ### TCP 半连接队列和全连接队列满的总结
+>
+> #### 1. **半连接队列满**
+> - **现象**：  
+>   - 半连接队列满时，后续的 SYN 报文会被丢弃，导致客户端无法建立连接。
+>   - 开启 `tcp_syncookies` 后，即使队列满了，也不会丢弃 SYN 报文。
+>
+> - **解决方法**：  
+>   1. **增大半连接队列**：  
+>      - 修改 `tcp_max_syn_backlog` 参数：  
+>        ```bash
+>        echo 1024 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+>        ```
+>      - 同时增大 `somaxconn` 和 Web 服务的 `backlog` 参数。
+>   2. **开启 SYN Cookies**：  
+>      - 修改 `tcp_syncookies` 参数：  
+>        ```bash
+>        echo 1 > /proc/sys/net/ipv4/tcp_syncookies
+>        ```
+>   3. **减少 SYN+ACK 重传次数**：  
+>      - 修改 `tcp_synack_retries` 参数：  
+>        ```bash
+>        echo 2 > /proc/sys/net/ipv4/tcp_synack_retries
+>        ```
+>
+> #### 2. **全连接队列满**
+> - **现象**：  
+>   - 全连接队列（accept 队列）满时，后续的 ACK 报文会被丢弃，导致服务端无法处理更多连接请求。
+>
+> - **解决方法**：  
+>   1. **增大全连接队列**：  
+>      - 修改 `somaxconn` 参数：  
+>        ```bash
+>        echo 1024 > /proc/sys/net/core/somaxconn
+>        ```
+>      - 修改 Web 服务的 `backlog` 参数（如 Nginx）：  
+>        ```nginx
+>        listen 8080 backlog=1024;
+>        ```
+>   2. **检查 accept 调用**：  
+>      - 确保应用程序及时调用 `accept()`，避免连接长时间滞留在队列中。
+>
+> #### 3. **监控队列状态**
+> - 使用 `ss -lnt` 命令查看队列状态：  
+>   - `Recv-Q`：当前 accept 队列的大小。  
+>   - `Send-Q`：accept 队列的最大长度。  
+>   - 如果 `Recv-Q` 超过 `Send-Q`，说明 accept 队列已满。
+>
+> #### 4. **总结**
+> - **半连接队列满**：  
+>   - 增大 `tcp_max_syn_backlog`。  
+>   - 开启 `tcp_syncookies`。  
+>   - 减少 SYN+ACK 重传次数。  
+> - **全连接队列满**：  
+>   - 增大 `somaxconn` 和 `backlog`。  
+>   - 检查应用程序是否及时调用 `accept()`。  
+> - **监控**：通过 `ss` 命令实时查看队列状态，及时发现并解决问题。
 
 ---
 

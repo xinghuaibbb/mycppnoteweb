@@ -117,11 +117,10 @@ kill -l
 
 man 7 signal
 
-> 	信号使用之前，应先确定其4要素，而后再用！！！
-> 										
-> 	编号、名称、对应事件、默认处理动作。
-> 	value或者standard   sisnal   comment   action   
->
+> 		信号使用之前，应先确定其4要素，而后再用！！！
+> 		
+> 		编号、名称、对应事件、默认处理动作。
+> 		value或者standard   sisnal   comment   action   
 
 重点: 
 
@@ -1344,8 +1343,9 @@ int main(int argc, char *argv[])
 ​	
 ​		exit();	退出当前进程。
 ​	
-		return: 返回到调用者那里去。
-	
+​		return: 返回到调用者那里去。
+​	
+
 		pthread_exit(): 退出当前线程。
 
 ## 补充-4 pthread_create实例-1
@@ -1665,7 +1665,6 @@ int pthread_cancel(pthread_t thread);		杀死一个线程。  需要到达取消
 ```
 
 > 成功被 pthread_cancel() 杀死的线程，返回 -1.使用pthead_join 回收。
->
 
 > 无取消点, 则无效
 
@@ -2291,8 +2290,9 @@ int main() {
 ​	
 ​	pthread_rwlock_init(&rwlock, NULL);
 ​	
-	pthread_rwlock_rdlock(&rwlock);		try
-	
+​	pthread_rwlock_rdlock(&rwlock);		try
+​	
+
 	pthread_rwlock_wrlock(&rwlock);		try
 	
 	pthread_rwlock_unlock(&rwlock);
@@ -2370,6 +2370,7 @@ int main() {
 	【要求，能够借助条件变量，完成生成者消费者】
 
  
+
 
 
 
@@ -2501,30 +2502,34 @@ int main(int argc, char *argv[])
 >
 > 张三 和 张三丰的关系 
 
-	应用于线程、进程间同步。
-	
-	相当于 初始化值为 N 的互斥量。  N值，表示可以同时访问共享数据区的线程数。
-	
-	函数：
-		sem_t sem;	定义类型。
-	
-		int sem_init(sem_t *sem, int pshared, unsigned int value);
-	
-		参数：
-			sem： 信号量 
-	
-			pshared：	0： 用于线程间同步
-					
-					1： 用于进程间同步
-	
-			value：N值。（指定同时访问的线程数）
+```c++
+应用于线程、进程间同步。
+
+相当于 初始化值为 N 的互斥量。  N值，表示可以同时访问共享数据区的线程数。
+
+函数：
+	sem_t sem;	定义类型。
+
+	int sem_init(sem_t *sem, int pshared, unsigned int value);
+
+	参数：
+		sem： 信号量 
+
+		pshared：	0： 用于线程间同步
+				
+				1： 用于进程间同步
+
+		value：N值。（指定同时访问的线程数）
+```
 
 
-		sem_destroy();
-	
-		sem_wait();		一次调用，做一次-- 操作， 当信号量的值为 0 时，再次 -- 就会阻塞。 （对比 pthread_mutex_lock）
-	
-		sem_post();		一次调用，做一次++ 操作. 当信号量的值为 N 时, 再次 ++ 就会阻塞。（对比 pthread_mutex_unlock）
+```c
+	sem_destroy();
+
+	sem_wait();		一次调用，做一次-- 操作， 当信号量的值为 0 时，再次 -- 就会阻塞。 （对比 pthread_mutex_lock）
+
+	sem_post();		一次调用，做一次++ 操作. 当信号量的值为 N 时, 再次 ++ 就会阻塞。（对比 pthread_mutex_unlock）
+```
 
 
 
